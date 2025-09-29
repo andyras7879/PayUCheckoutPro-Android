@@ -9,24 +9,18 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.payu.base.models.OrderDetails
-import java.util.*
 
-class ReviewOrderRecyclerViewAdapter :
-    RecyclerView.Adapter<ReviewOrderRecyclerViewAdapter.ViewHolder>() {
-    private val orderDetailsList: ArrayList<OrderDetails>?
+class ReviewOrderRecyclerViewAdapter : RecyclerView.Adapter<ReviewOrderRecyclerViewAdapter.ViewHolder>() {
+
+    private val orderDetailsList: MutableList<OrderDetails> = ArrayList()
 
     init {
-        orderDetailsList = ArrayList<OrderDetails>()
         orderDetailsList.add(OrderDetails("Milk", "1"))
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val row: View =
-            layoutInflater.inflate(R.layout.review_order_row_layout, null)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val row = LayoutInflater.from(parent.context)
+            .inflate(R.layout.review_order_row_layout, parent, false)
         return ViewHolder(
             row,
             MyCustomKeyEditTextListener(),
@@ -34,124 +28,99 @@ class ReviewOrderRecyclerViewAdapter :
         )
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
-        position: Int
-    ) {
-        // update MyCustomEditTextListener every time we bind a new item
-        // so that it knows what item in mDataset to update
-        holder.myCustomKeyTextListener.updatePosition(holder.adapterPosition)
-        holder.mEditTextKey.setText(orderDetailsList!![holder.adapterPosition].key)
-        holder.myCustomValueTextListener.updatePosition(holder.adapterPosition)
-        holder.mEditTextValue.setText(
-            orderDetailsList[holder.adapterPosition].value
-        )
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.myCustomKeyTextListener.updatePosition(holder.bindingAdapterPosition)
+        holder.myCustomValueTextListener.updatePosition(holder.bindingAdapterPosition)
 
-        if (orderDetailsList.size > 1) holder.ivDeleteOrderItem.visibility = View.VISIBLE else holder.ivDeleteOrderItem.visibility = View.GONE
+        val orderDetails = orderDetailsList.getOrNull(holder.bindingAdapterPosition)
+
+        holder.mEditTextKey.setText(orderDetails?.key ?: "")
+        holder.mEditTextValue.setText(orderDetails?.value ?: "")
+
+        holder.ivDeleteOrderItem.visibility =
+            if (orderDetailsList.size > 1) View.VISIBLE else View.GONE
     }
 
     fun addRow() {
-        orderDetailsList!!.add(OrderDetails("", ""))
+        orderDetailsList.add(OrderDetails("", ""))
         notifyItemInserted(orderDetailsList.size - 1)
     }
 
-    fun getOrderDetailsList() = orderDetailsList
+    fun getOrderDetailsList(): List<OrderDetails> = orderDetailsList
 
     override fun getItemCount(): Int {
-        return if (orderDetailsList == null || orderDetailsList.isEmpty()) 1 else orderDetailsList.size
+        return if (orderDetailsList.isEmpty()) 1 else orderDetailsList.size
     }
 
     inner class ViewHolder(
-        v: View,
-        myCustomKeyTextListener: MyCustomKeyEditTextListener,
-        myCustomValueTextListener: MyCustomValueEditTextListener
-    ) : RecyclerView.ViewHolder(v) {
-        var mEditTextKey: EditText
-        var mEditTextValue: EditText
-        val ivDeleteOrderItem: ImageView
-        var myCustomKeyTextListener: MyCustomKeyEditTextListener
-        var myCustomValueTextListener: MyCustomValueEditTextListener
+        itemView: View,
+        val myCustomKeyTextListener: MyCustomKeyEditTextListener,
+        val myCustomValueTextListener: MyCustomValueEditTextListener
+    ) : RecyclerView.ViewHolder(itemView) {
+
+        val mEditTextKey: EditText = itemView.findViewById(R.id.etReviewOrderKey)
+        val mEditTextValue: EditText = itemView.findViewById(R.id.etReviewOrderValue)
+        val ivDeleteOrderItem: ImageView = itemView.findViewById(R.id.ivDeleteOrderItem)
 
         init {
-            mEditTextKey =
-                v.findViewById<View>(R.id.etReviewOrderKey) as EditText
-            mEditTextValue =
-                v.findViewById<View>(R.id.etReviewOrderValue) as EditText
-            ivDeleteOrderItem = v.findViewById(R.id.ivDeleteOrderItem)
             ivDeleteOrderItem.setOnClickListener {
-                orderDetailsList?.removeAt(adapterPosition)
-                notifyItemRemoved(adapterPosition)
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION && position < orderDetailsList.size) {
+                    orderDetailsList.removeAt(position)
+                    notifyItemRemoved(position)
+                }
             }
-            this.myCustomKeyTextListener = myCustomKeyTextListener
-            this.myCustomValueTextListener = myCustomValueTextListener
             mEditTextKey.addTextChangedListener(myCustomKeyTextListener)
             mEditTextValue.addTextChangedListener(myCustomValueTextListener)
-
-
         }
     }
 
-    // we make TextWatcher to be aware of the position it currently works with
-    // this way, once a new item is attached in onBindViewHolder, it will
-    // update current position MyCustomEditTextListener, reference to which is kept by ViewHolder
     inner class MyCustomKeyEditTextListener : TextWatcher {
-        private var position = 0
+        private var position = RecyclerView.NO_POSITION
+
         fun updatePosition(position: Int) {
             this.position = position
         }
 
-        override fun beforeTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             // no op
         }
 
-        override fun onTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
-            val data: OrderDetails = orderDetailsList!![position]
-            val newData = OrderDetails(charSequence.toString(), data.value!!)
-            orderDetailsList[position] = newData
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val pos = position
+            if (pos != RecyclerView.NO_POSITION && pos < orderDetailsList.size) {
+                val current = orderDetailsList[pos]
+                val newKey = s?.toString() ?: ""
+                orderDetailsList[pos] = OrderDetails(newKey, current.value ?: "")
+            }
         }
 
-        override fun afterTextChanged(editable: Editable) {
+        override fun afterTextChanged(s: Editable?) {
             // no op
         }
     }
 
     inner class MyCustomValueEditTextListener : TextWatcher {
-        private var position = 0
+        private var position = RecyclerView.NO_POSITION
+
         fun updatePosition(position: Int) {
             this.position = position
         }
 
-        override fun beforeTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             // no op
         }
 
-        override fun onTextChanged(
-            charSequence: CharSequence,
-            i: Int,
-            i2: Int,
-            i3: Int
-        ) {
-            val data: OrderDetails = orderDetailsList!![position]
-            val newData = OrderDetails(data.key!!, charSequence.toString())
-            orderDetailsList[position] = newData
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val pos = position
+            if (pos != RecyclerView.NO_POSITION && pos < orderDetailsList.size) {
+                val current = orderDetailsList[pos]
+                val newValue = s?.toString() ?: ""
+                orderDetailsList[pos] = OrderDetails(current.key ?: "", newValue)
+            }
         }
 
-        override fun afterTextChanged(editable: Editable) {
+        override fun afterTextChanged(s: Editable?) {
             // no op
         }
     }

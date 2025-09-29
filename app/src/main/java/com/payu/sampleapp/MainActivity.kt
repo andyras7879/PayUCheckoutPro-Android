@@ -1,17 +1,22 @@
 package com.payu.sampleapp
 
 import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowInsetsController
 import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -27,9 +32,6 @@ import com.payu.paymentparamhelper.PayuConstants
 import com.payu.sampleapp.databinding.ActivityMainBinding
 import com.payu.ui.model.listeners.PayUCheckoutProListener
 import com.payu.ui.model.listeners.PayUHashGenerationListener
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.custome_note.*
-import kotlinx.android.synthetic.main.layout_si_details.*
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -43,18 +45,11 @@ class MainActivity : AppCompatActivity() {
     private val amount = "1.0"
 
     //Test Key and Salt
-    private val testKey = "IUIaFM"
+    private val testKey = "<Please_add_key_here>"
     private val testSalt = "<Please_add_salt_here>"
-    /**
-     * Enter below keys when integrating Multi Currency Payments.
-     * To get these credentials, please reach out to your Key Account Manager at PayU
-     * */
-    private val merchantAccessKey = "<Please_add_your_merchant_access_key>"
-    private val merchantSecretKey = "<Please_add_your_merchant_secret_key>"
-
 
     //Prod Key and Salt
-    private val prodKey = "0MQaQP"
+    private val prodKey = "<Please_add_key_here>"
     private val prodSalt = "<Please_add_salt_here>"
 
     private lateinit var binding: ActivityMainBinding
@@ -62,6 +57,9 @@ class MainActivity : AppCompatActivity() {
     // variable to track event time
     private var mLastClickTime: Long = 0
     private var reviewOrderAdapter: ReviewOrderRecyclerViewAdapter? = null
+    private var tpvBeneficiaryCount = 1
+    private var offerKeyCount = 1
+    private var skuItemCount = 1
     private var billingCycle = arrayOf(
         "DAILY",
         "WEEKLY",
@@ -103,11 +101,179 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        
+        // Configure status bar for Android 15 and above
+        configureStatusBar()
+        
         initializeSIView()
+        initializeUpiOtmView()
         initializeSplitPaymentViews()
+        initializeAdditionalChargesView()
+        initializePercentageChargesView()
+        initializeTpvView()
+        initializeCrossBorderView()
+        initializeEnforceOfferView()
+        initializeSkuDetailsView()
         setCustomeNote()
         setInitalData()
         initListeners()
+    }
+
+    /**
+     * Configure status bar appearance for all Android versions without deprecation warnings
+     * Uses modern WindowInsetsController API with proper fallbacks
+     */
+    private fun configureStatusBar() {
+        try {
+            // Enable edge-to-edge display for modern experience
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            
+            // Get the WindowInsetsController - works for all supported API levels
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+            
+            // Configure status bar appearance based on Android version
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM -> { // Android 15+ (API 35)
+                    configureModernStatusBar(windowInsetsController)
+                    Log.d("MainActivity", "Modern status bar configured for Android ${Build.VERSION.SDK_INT}")
+                }
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> { // Android 6+ (API 23)
+                    configureCompatStatusBar(windowInsetsController)
+                    Log.d("MainActivity", "Compatible status bar configured for Android ${Build.VERSION.SDK_INT}")
+                }
+                else -> {
+                    // For very old versions (below API 23)
+                    configureBasicStatusBar()
+                    Log.d("MainActivity", "Basic status bar configured for Android ${Build.VERSION.SDK_INT}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error configuring status bar", e)
+            // Silent fallback - no status bar changes
+        }
+    }
+
+    /**
+     * Configure status bar for Android 15+ using modern APIs
+     */
+    private fun configureModernStatusBar(controller: WindowInsetsControllerCompat) {
+        // Set status bar content appearance based on theme
+        controller.isAppearanceLightStatusBars = !isDarkModeActive()
+        
+        // Enable smooth system bar behavior
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        
+        // Apply Material You theming if available
+        applyModernTheming()
+    }
+
+    /**
+     * Configure status bar for Android 6-14 (API 23-34)
+     */
+    private fun configureCompatStatusBar(controller: WindowInsetsControllerCompat) {
+        // Set status bar content appearance
+        controller.isAppearanceLightStatusBars = !isDarkModeActive()
+        
+        // Apply standard theming
+        applyStandardTheming()
+    }
+
+    /**
+     * Basic status bar configuration for older Android versions
+     */
+    private fun configureBasicStatusBar() {
+        // For API < 23, we can't control light/dark status bar icons
+        // Just apply basic theming if possible
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Use reflection to avoid direct API calls that might cause issues
+                applyBasicTheming()
+            }
+        } catch (e: Exception) {
+            Log.w("MainActivity", "Could not apply basic status bar theming", e)
+        }
+    }
+
+    /**
+     * Apply Material You theming for modern Android versions
+     */
+    private fun applyModernTheming() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12+
+            try {
+                // Use system colors when available
+                val systemColor = getSystemAccentColor()
+                if (systemColor != null) {
+                    setStatusBarColorSafely(systemColor)
+                } else {
+                    // Fallback to app colors
+                    applyStandardTheming()
+                }
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Could not apply modern theming, falling back to standard", e)
+                applyStandardTheming()
+            }
+        } else {
+            applyStandardTheming()
+        }
+    }
+
+    /**
+     * Apply standard app theming
+     */
+    private fun applyStandardTheming() {
+        val primaryColor = ContextCompat.getColor(this, R.color.colorPrimary)
+        setStatusBarColorSafely(primaryColor)
+    }
+
+    /**
+     * Apply basic theming for older versions
+     */
+    private fun applyBasicTheming() {
+        val primaryColor = ContextCompat.getColor(this, R.color.colorPrimary)
+        setStatusBarColorSafely(primaryColor)
+    }
+
+    /**
+     * Safely set status bar color without deprecation warnings
+     */
+    @Suppress("DEPRECATION")
+    private fun setStatusBarColorSafely(color: Int) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.statusBarColor = color
+            }
+        } catch (e: Exception) {
+            Log.w("MainActivity", "Could not set status bar color", e)
+        }
+    }
+
+    /**
+     * Get system accent color for Material You theming
+     */
+    private fun getSystemAccentColor(): Int? {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (isDarkModeActive()) {
+                    ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary20)
+                } else {
+                    ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_primary80)
+                }
+            } else null
+        } catch (e: Exception) {
+            Log.w("MainActivity", "System accent color not available", e)
+            null
+        }
+    }
+
+    /**
+     * Check if dark mode is currently active
+     * @return true if dark mode is active, false otherwise
+     */
+    private fun isDarkModeActive(): Boolean {
+        return when (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) {
+            android.content.res.Configuration.UI_MODE_NIGHT_YES -> true
+            else -> false
+        }
     }
 
     private fun addSplitPaymentDetailedView() {
@@ -121,7 +287,7 @@ class MainActivity : AppCompatActivity() {
         llSplitPaymentDetails = findViewById(R.id.ll_split_payment_details)
         btnSplitMore = findViewById(R.id.btn_split_more)
 
-        switchSplitPayment?.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+        switchSplitPayment?.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
             addSplitPaymentDetailedView()
             if (isChecked) {
                 findViewById<View>(R.id.ll_split_type).visibility = View.VISIBLE
@@ -149,9 +315,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeSIView() {
-        switch_si_on_off.setOnCheckedChangeListener { buttonView, isChecked -> if(isChecked)
-        { layout_si_details.visibility = View.VISIBLE }
-        else { layout_si_details.visibility = View.GONE }
+        binding.switchSiOnOff.setOnCheckedChangeListener { _, isChecked -> if(isChecked)
+        { binding.layoutSiDetails.root.visibility = View.VISIBLE }
+        else { binding.layoutSiDetails.root.visibility = View.GONE }
         }
 
         val adapter: ArrayAdapter<*> = ArrayAdapter<Any?>(
@@ -160,18 +326,426 @@ class MainActivity : AppCompatActivity() {
             billingCycle
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        et_billingCycle_value.adapter = adapter
+        binding.layoutSiDetails.etBillingCycleValue.adapter = adapter
         val billingRuleAdapter : ArrayAdapter<*> = ArrayAdapter<Any?>(
             this, android.R.layout.simple_spinner_item, billingRule
         )
         billingRuleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        et_billingRule_value.adapter = billingRuleAdapter
+        binding.layoutSiDetails.etBillingRuleValue.adapter = billingRuleAdapter
 
         val billingLimitAdapter : ArrayAdapter<*> = ArrayAdapter<Any?>(
             this, android.R.layout.simple_spinner_item, billingLimit
         )
         billingLimitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        et_billingLimit_value.adapter = billingLimitAdapter
+        binding.layoutSiDetails.etBillingLimitValue.adapter = billingLimitAdapter
+    }
+
+    private fun initializeUpiOtmView() {
+        binding.switchUpiOtmOnOff.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.layoutUpiOtmDetails.root.visibility = View.VISIBLE
+            } else {
+                binding.layoutUpiOtmDetails.root.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun initializeAdditionalChargesView() {
+        binding.switchAdditionalCharges.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.layoutAdditionalChargesInputs.visibility = View.VISIBLE
+            } else {
+                binding.layoutAdditionalChargesInputs.visibility = View.GONE
+            }
+        }
+    }
+    private fun initializePercentageChargesView() {
+        binding.switchPercentageCharges.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.layoutPercentageChargesInputs.visibility = View.VISIBLE
+            } else {
+                binding.layoutPercentageChargesInputs.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun initializeTpvView() {
+        binding.switchTpvOnOff.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.llTpvContent.visibility = View.VISIBLE
+                addTpvBeneficiaryEntry() // Add first entry by default
+            } else {
+                binding.llTpvContent.visibility = View.GONE
+                binding.llTpvBeneficiaries.removeAllViews()
+                tpvBeneficiaryCount = 1
+            }
+        }
+
+        binding.btnAddBeneficiary.setOnClickListener {
+            addTpvBeneficiaryEntry()
+        }
+
+        binding.rgTpvFlowType.setOnCheckedChangeListener { _, checkedId ->
+            updateTpvFieldsVisibility()
+        }
+    }
+
+    private fun addTpvBeneficiaryEntry() {
+        val inflater = LayoutInflater.from(this)
+        val beneficiaryView = inflater.inflate(R.layout.layout_tpv_beneficiary_details, binding.llTpvBeneficiaries, false)
+
+        // Set up account type spinner
+        val accountTypeSpinner = beneficiaryView.findViewById<Spinner>(R.id.spinner_account_type)
+        val accountTypes = arrayOf("SAVINGS", "CURRENT", "SALARY", "NRE", "NRO")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, accountTypes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        accountTypeSpinner.adapter = adapter
+
+        // Set up delete functionality
+        val deleteButton = beneficiaryView.findViewById<ImageView>(R.id.iv_delete_beneficiary)
+        deleteButton.setOnClickListener {
+            if (binding.llTpvBeneficiaries.childCount > 1) {
+                binding.llTpvBeneficiaries.removeView(beneficiaryView)
+            }
+        }
+
+        // Hide delete button if this is the first item
+        deleteButton.visibility = if (tpvBeneficiaryCount == 1) View.GONE else View.VISIBLE
+
+        // Add different default values based on count for testing
+        if (tpvBeneficiaryCount <= 3) {
+            val ifscCode = beneficiaryView.findViewById<EditText>(R.id.et_beneficiary_ifsc)
+            val accountNumber = beneficiaryView.findViewById<EditText>(R.id.et_beneficiary_account_number)
+            val beneficiaryName = beneficiaryView.findViewById<EditText>(R.id.et_beneficiary_name)
+
+            when (tpvBeneficiaryCount) {
+                1 -> {
+                    ifscCode.setText("HDFC0000090")
+                    accountNumber.setText("002001600674")
+                    beneficiaryName.setText("ANAND KUMAR RASTOGI")
+                }
+                2 -> {
+                    ifscCode.setText("ICIC0000090")
+                    accountNumber.setText("002001600674")
+                    beneficiaryName.setText("ANAND KUMAR RASTOGI")
+                }
+                3 -> {
+                    ifscCode.setText("SBIN0000090")
+                    accountNumber.setText("002001600674")
+                    beneficiaryName.setText("ANAND KUMAR RASTOGI")
+                }
+            }
+        }
+
+        binding.llTpvBeneficiaries.addView(beneficiaryView)
+        tpvBeneficiaryCount++
+
+        // Update field visibility based on current flow type
+        updateTpvFieldsVisibility()
+        
+        // Make sure all delete buttons are visible except for the first item when there's only one
+        updateTpvDeleteButtonsVisibility()
+    }
+
+    private fun updateTpvFieldsVisibility() {
+        val isEnachFlow = binding.rbEnachSiTpv.isChecked
+
+        for (i in 0 until binding.llTpvBeneficiaries.childCount) {
+            val childView = binding.llTpvBeneficiaries.getChildAt(i)
+            val accountTypeLayout = childView.findViewById<LinearLayout>(R.id.ll_account_type)
+            val beneficiaryNameLayout = childView.findViewById<LinearLayout>(R.id.ll_beneficiary_name)
+            
+            accountTypeLayout.visibility = if (isEnachFlow) View.VISIBLE else View.GONE
+            beneficiaryNameLayout.visibility = if (isEnachFlow) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun updateTpvDeleteButtonsVisibility() {
+        for (i in 0 until binding.llTpvBeneficiaries.childCount) {
+            val childView = binding.llTpvBeneficiaries.getChildAt(i)
+            val deleteButton = childView.findViewById<ImageView>(R.id.iv_delete_beneficiary)
+            deleteButton.visibility = if (binding.llTpvBeneficiaries.childCount > 1) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun getTpvBeneficiaryDetailsList(): List<TPVBeneficiaryDetail> {
+        val beneficiaryList = mutableListOf<TPVBeneficiaryDetail>()
+        val isEnachFlow = binding.rbEnachSiTpv.isChecked
+
+        for (i in 0 until binding.llTpvBeneficiaries.childCount) {
+            val childView = binding.llTpvBeneficiaries.getChildAt(i)
+            val ifscCode = childView.findViewById<EditText>(R.id.et_beneficiary_ifsc).text.toString()
+            val accountNumber = childView.findViewById<EditText>(R.id.et_beneficiary_account_number).text.toString()
+            
+            val accountType = if (isEnachFlow) {
+                childView.findViewById<Spinner>(R.id.spinner_account_type).selectedItem.toString()
+            } else null
+            
+            val beneficiaryName = if (isEnachFlow) {
+                childView.findViewById<EditText>(R.id.et_beneficiary_name).text.toString()
+            } else null
+
+            if (ifscCode.isNotEmpty() && accountNumber.isNotEmpty()) {
+                beneficiaryList.add(TPVBeneficiaryDetail(ifscCode, accountNumber, accountType, beneficiaryName))
+            }
+        }
+
+        return beneficiaryList
+    }
+
+    private fun prepareTpvBeneficiaryDetailsList(): List<PayUBeneficiaryDetail> {
+        if (!binding.switchTpvOnOff.isChecked) {
+            return emptyList()
+        }
+
+        val tpvBeneficiaryList = getTpvBeneficiaryDetailsList()
+        if (tpvBeneficiaryList.isEmpty()) {
+            return emptyList()
+        }
+
+        val payUBeneficiaryDetailsList = mutableListOf<PayUBeneficiaryDetail>()
+        val isEnachFlow = binding.rbEnachSiTpv.isChecked
+
+        for (tpvDetail in tpvBeneficiaryList) {
+            val beneficiaryBuilder = PayUBeneficiaryDetail.Builder()
+                .setBeneficiaryIfsc(tpvDetail.beneficiaryIfsc)
+                .setBeneficiaryAccountNumber(tpvDetail.beneficiaryAccountNumber)
+
+            // Add account type and name only for ENACH TPV flow
+            if (isEnachFlow && tpvDetail.beneficiaryAccountType != null && tpvDetail.beneficiaryName != null) {
+                val accountType = when (tpvDetail.beneficiaryAccountType) {
+                    "SAVINGS" -> PayUBeneficiaryAccountType.SAVINGS
+                    "CURRENT" -> PayUBeneficiaryAccountType.CURRENT
+                    else -> PayUBeneficiaryAccountType.SAVINGS
+                }
+                beneficiaryBuilder
+                    .setBeneficiaryAccountType(accountType)
+                    .setBeneficiaryName(tpvDetail.beneficiaryName)
+            }
+
+            payUBeneficiaryDetailsList.add(beneficiaryBuilder.build())
+        }
+
+        return payUBeneficiaryDetailsList
+    }
+
+    private fun initializeCrossBorderView() {
+        binding.switchCrossborderOnOff.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.layoutCrossborderAddressDetails.root.visibility = View.VISIBLE
+            } else {
+                binding.layoutCrossborderAddressDetails.root.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun prepareCrossBorderAddressDetails(): PayUAddressDetails {
+        if (!binding.switchCrossborderOnOff.isChecked) {
+            // Return default empty address when cross-border is disabled
+            return PayUAddressDetails.Builder()
+                .setLastName("")
+                .setAddress1("")
+                .setAddress2("")
+                .setCity("")
+                .setState("")
+                .setCountry("")
+                .setZipcode("")
+                .build()
+        }
+
+        val lastName = binding.layoutCrossborderAddressDetails.etLastNameValue.text.toString().trim()
+        val address1 = binding.layoutCrossborderAddressDetails.etAddress1Value.text.toString().trim()
+        val address2 = binding.layoutCrossborderAddressDetails.etAddress2Value.text.toString().trim()
+        val city = binding.layoutCrossborderAddressDetails.etCityValue.text.toString().trim()
+        val state = binding.layoutCrossborderAddressDetails.etStateValue.text.toString().trim()
+        val country = binding.layoutCrossborderAddressDetails.etCountryValue.text.toString().trim()
+        val zipcode = binding.layoutCrossborderAddressDetails.etZipcodeValue.text.toString().trim()
+
+        // Use default values if fields are empty but switch is on
+        return PayUAddressDetails.Builder()
+            .setLastName(if (lastName.isNotEmpty()) lastName else "")
+            .setAddress1(if (address1.isNotEmpty()) address1 else "")
+            .setAddress2(if (address2.isNotEmpty()) address2 else "")
+            .setCity(if (city.isNotEmpty()) city else "")
+            .setState(if (state.isNotEmpty()) state else "")
+            .setCountry(if (country.isNotEmpty()) country else "")
+            .setZipcode(if (zipcode.isNotEmpty()) zipcode else "")
+            .build()
+    }
+
+    private fun initializeEnforceOfferView() {
+        binding.switchEnforceOfferOnOff.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.llEnforceOfferContent.visibility = View.VISIBLE
+                addOfferKeyEntry() // Add first entry by default
+            } else {
+                binding.llEnforceOfferContent.visibility = View.GONE
+                binding.llOfferKeys.removeAllViews()
+                offerKeyCount = 1
+            }
+        }
+
+        binding.btnAddOfferKey.setOnClickListener {
+            addOfferKeyEntry()
+        }
+    }
+
+    private fun addOfferKeyEntry() {
+        val inflater = LayoutInflater.from(this)
+        val offerKeyView = inflater.inflate(R.layout.layout_offer_key_entry, binding.llOfferKeys, false)
+
+        // Set up delete functionality
+        val deleteButton = offerKeyView.findViewById<ImageView>(R.id.iv_delete_offer_key)
+        deleteButton.setOnClickListener {
+            if (binding.llOfferKeys.childCount > 1) {
+                binding.llOfferKeys.removeView(offerKeyView)
+            }
+        }
+
+        // Hide delete button if this is the first item
+        deleteButton.visibility = if (offerKeyCount == 1) View.GONE else View.VISIBLE
+
+        // Add default value for the first entry
+        if (offerKeyCount == 1) {
+            val offerKeyInput = offerKeyView.findViewById<EditText>(R.id.et_offer_key_value)
+            offerKeyInput.setText("OFFER123SAMPLE")
+        }
+
+        binding.llOfferKeys.addView(offerKeyView)
+        offerKeyCount++
+
+        // Make sure all delete buttons are visible except for the first item when there's only one
+        updateOfferKeyDeleteButtonsVisibility()
+    }
+
+    private fun updateOfferKeyDeleteButtonsVisibility() {
+        for (i in 0 until binding.llOfferKeys.childCount) {
+            val childView = binding.llOfferKeys.getChildAt(i)
+            val deleteButton = childView.findViewById<ImageView>(R.id.iv_delete_offer_key)
+            deleteButton.visibility = if (binding.llOfferKeys.childCount > 1) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun prepareEnforceOfferKeysList(): ArrayList<String> {
+        val offerKeysList = ArrayList<String>()
+        
+        if (!binding.switchEnforceOfferOnOff.isChecked) {
+            return offerKeysList // Return empty list if switch is off
+        }
+
+        for (i in 0 until binding.llOfferKeys.childCount) {
+            val childView = binding.llOfferKeys.getChildAt(i)
+            val offerKeyValue = childView.findViewById<EditText>(R.id.et_offer_key_value).text.toString().trim()
+
+            if (offerKeyValue.isNotEmpty()) {
+                offerKeysList.add(offerKeyValue)
+            }
+        }
+
+        return offerKeysList
+    }
+
+    private fun initializeSkuDetailsView() {
+        binding.switchSkuDetailsOnOff.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.llSkuDetailsContent.visibility = View.VISIBLE
+                addSkuItemEntry() // Add first entry by default
+            } else {
+                binding.llSkuDetailsContent.visibility = View.GONE
+                binding.llSkuItems.removeAllViews()
+                skuItemCount = 1
+            }
+        }
+
+        binding.btnAddSkuItem.setOnClickListener {
+            addSkuItemEntry()
+        }
+    }
+
+    private fun addSkuItemEntry() {
+        val inflater = LayoutInflater.from(this)
+        val skuItemView = inflater.inflate(R.layout.layout_sku_item_entry, binding.llSkuItems, false)
+
+        // Set up delete functionality
+        val deleteButton = skuItemView.findViewById<ImageView>(R.id.iv_delete_sku_item)
+        deleteButton.setOnClickListener {
+            if (binding.llSkuItems.childCount > 1) {
+                binding.llSkuItems.removeView(skuItemView)
+            }
+        }
+
+        // Hide delete button if this is the first item
+        deleteButton.visibility = if (skuItemCount == 1) View.GONE else View.VISIBLE
+
+        // Add sample values based on the provided examples
+        if (skuItemCount <= 2) {
+            val skuId = skuItemView.findViewById<EditText>(R.id.et_sku_id)
+            val skuName = skuItemView.findViewById<EditText>(R.id.et_sku_name)
+            val amountPerSku = skuItemView.findViewById<EditText>(R.id.et_amount_per_sku)
+            val quantity = skuItemView.findViewById<EditText>(R.id.et_quantity)
+
+            when (skuItemCount) {
+                1 -> {
+                    skuId.setText("1111")
+                    skuName.setText("Protein Bar")
+                    amountPerSku.setText("6000")
+                    quantity.setText("1")
+                }
+                2 -> {
+                    skuId.setText("1112")
+                    skuName.setText("Healthy Snack")
+                    amountPerSku.setText("6000")
+                    quantity.setText("1")
+                }
+            }
+        }
+
+        binding.llSkuItems.addView(skuItemView)
+        skuItemCount++
+
+        // Make sure all delete buttons are visible except for the first item when there's only one
+        updateSkuItemDeleteButtonsVisibility()
+    }
+
+    private fun updateSkuItemDeleteButtonsVisibility() {
+        for (i in 0 until binding.llSkuItems.childCount) {
+            val childView = binding.llSkuItems.getChildAt(i)
+            val deleteButton = childView.findViewById<ImageView>(R.id.iv_delete_sku_item)
+            deleteButton.visibility = if (binding.llSkuItems.childCount > 1) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun prepareSkuDetailsList(): com.payu.base.models.SkuDetails {
+        val skuList = mutableListOf<com.payu.base.models.SKU>()
+
+        if (binding.switchSkuDetailsOnOff.isChecked) {
+            for (i in 0 until binding.llSkuItems.childCount) {
+                val childView = binding.llSkuItems.getChildAt(i)
+                val skuId = childView.findViewById<EditText>(R.id.et_sku_id).text.toString().trim()
+                val skuName = childView.findViewById<EditText>(R.id.et_sku_name).text.toString().trim()
+                val amountPerSkuStr = childView.findViewById<EditText>(R.id.et_amount_per_sku).text.toString().trim()
+                val quantityStr = childView.findViewById<EditText>(R.id.et_quantity).text.toString().trim()
+                val offerKey = childView.findViewById<EditText>(R.id.et_offer_key).text.toString().trim()
+                val offerAutoApply = childView.findViewById<androidx.appcompat.widget.SwitchCompat>(R.id.switch_offer_auto_apply).isChecked
+
+                // Parse quantity and amount
+                val quantity = quantityStr.toIntOrNull() ?: 1
+                val amountPerSku = amountPerSkuStr
+
+                // Create offer keys list if provided
+                val offerKeys = if (offerKey.isNotEmpty()) {
+                    arrayListOf(offerKey)
+                } else null
+
+                if (skuId.isNotEmpty() && skuName.isNotEmpty() && amountPerSku.isNotEmpty()) {
+                    // Use PayU SDK's SKU class
+                    skuList.add(com.payu.base.models.SKU(quantity, amountPerSku, skuId, skuName, offerKeys, offerAutoApply))
+                }
+            }
+        }
+
+        // Return PayU SDK's SkuDetails class
+        return com.payu.base.models.SkuDetails(skuList)
     }
 
     private fun setCustomeNote(){
@@ -179,7 +753,7 @@ class MainActivity : AppCompatActivity() {
             this,android.R.layout.simple_spinner_item,noteCategory
         )
         noteCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        et_custom_note_category_value.adapter = noteCategoryAdapter
+        findViewById<AppCompatSpinner>(R.id.et_custom_note_category_value).adapter = noteCategoryAdapter
     }
 
     private fun setInitalData() {
@@ -194,7 +768,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        binding.radioGrpEnv.setOnCheckedChangeListener { radioGroup: RadioGroup, i: Int ->
+        binding.radioGrpEnv.setOnCheckedChangeListener { _: RadioGroup, i: Int ->
             when (i) {
                 R.id.radioBtnTest -> updateTestEnvDetails()
                 R.id.radioBtnProduction -> updateProdEnvDetails()
@@ -202,7 +776,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.switchEnableReviewOrder.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
+        binding.switchEnableReviewOrder.setOnCheckedChangeListener { _: CompoundButton, b: Boolean ->
             if (b) showReviewOrderView() else hideReviewOrderView()
         }
 
@@ -245,15 +819,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun preparePayUBizParams(): PayUPaymentParams {
-        val vasForMobileSdkHash = HashGenerationUtils.generateHashFromSDK(
-            "${binding.etKey.text}|${PayUCheckoutProConstants.CP_VAS_FOR_MOBILE_SDK}|${PayUCheckoutProConstants.CP_DEFAULT}|",
-            binding.etSalt.text.toString()
-        )
-        val paymenRelatedDetailsHash = HashGenerationUtils.generateHashFromSDK(
-            "${binding.etKey.text}|${PayUCheckoutProConstants.CP_PAYMENT_RELATED_DETAILS_FOR_MOBILE_SDK}|${binding.etUserCredential.text}|",
-            binding.etSalt.text.toString()
-        )
-
         val additionalParamsMap: HashMap<String, Any?> = HashMap()
         additionalParamsMap[PayUCheckoutProConstants.CP_UDF1] = "udf1"
         additionalParamsMap[PayUCheckoutProConstants.CP_UDF2] = "udf2"
@@ -261,33 +826,41 @@ class MainActivity : AppCompatActivity() {
         additionalParamsMap[PayUCheckoutProConstants.CP_UDF4] = "udf4"
         additionalParamsMap[PayUCheckoutProConstants.CP_UDF5] = "udf5"
 
-        //Below params should be passed only when integrating Multi-currency support
-        //TODO Please pass your own Merchant Access Key below as provided by your Key Account Manager at PayU.
-//        additionalParamsMap[PayUCheckoutProConstants.CP_MERCHANT_ACCESS_KEY] = merchantAccessKey
+        // For CrossBorder Payment, merchant need to pass invoiceId in UDF5 otherwise pass as null 
+//        additionalParams.put(PayUCheckoutProConstants.CP_UDF5, "3456788765");
 
         //Below param should be passed only when sodexo payment option is enabled and to show saved sodexo card
-//        additionalParamsMap[PayUCheckoutProConstants.SODEXO_SOURCE_ID] = sodesosrcid  // merchant has to pass this
+//        additionalParamsMap[PayUCheckoutProConstants.SODEXO_SOURCE_ID] = "<SODEXO SOURCE ID>"  // merchant has to pass this
 
-        //Below hashes are static hashes and can be calculated and passed in additional params
-        additionalParamsMap[PayUCheckoutProConstants.CP_VAS_FOR_MOBILE_SDK] = vasForMobileSdkHash
-        additionalParamsMap[PayUCheckoutProConstants.CP_PAYMENT_RELATED_DETAILS_FOR_MOBILE_SDK] =
-            paymenRelatedDetailsHash
+       //Below param should be passed only when ClooseLoop payment option is enabled and to show inside the saved card
+//        additionalParamsMap[PayUCheckoutProConstants.WALLET_URN] = "<Wallet URN>"  // merchant has to pass this
 
+        // This below parameter only required For SI/Recurring Payment
         var siDetails: PayUSIParams? =null
-        if(switch_si_on_off.isChecked) {
+        if(binding.switchSiOnOff.isChecked) {
             siDetails  = PayUSIParams.Builder()
-                .setIsFreeTrial(sp_free_trial.isChecked)
-                .setBillingAmount(et_billingAmount_value.text.toString())
-                .setBillingCycle(PayUBillingCycle.valueOf(et_billingCycle_value.selectedItem.toString()))
-                .setBillingInterval(et_billingInterval_value.text.toString().toInt())
-                .setPaymentStartDate(et_paymentStartDate_value.text.toString())
-                .setPaymentEndDate(et_paymentEndDate_value.text.toString())
-                .setRemarks(et_remarks_value.text.toString())
-                .setBillingLimit(PayuBillingLimit.valueOf(et_billingLimit_value.selectedItem.toString()))
-                .setBillingRule(PayuBillingRule.valueOf(et_billingRule_value.selectedItem.toString()))
+                .setIsFreeTrial(binding.layoutSiDetails.spFreeTrial.isChecked)
+                .setBillingAmount(binding.layoutSiDetails.etBillingAmountValue.text.toString())
+                .setBillingCycle(PayUBillingCycle.valueOf(binding.layoutSiDetails.etBillingCycleValue.selectedItem.toString()))
+                .setBillingInterval(binding.layoutSiDetails.etBillingIntervalValue.text.toString().toInt())
+                .setPaymentStartDate(binding.layoutSiDetails.etPaymentStartDateValue.text.toString())
+                .setPaymentEndDate(binding.layoutSiDetails.etPaymentEndDateValue.text.toString())
+                .setRemarks(binding.layoutSiDetails.etRemarksValue.text.toString())
+                .setBillingLimit(PayuBillingLimit.valueOf(binding.layoutSiDetails.etBillingLimitValue.selectedItem.toString()))
+                .setBillingRule(PayuBillingRule.valueOf(binding.layoutSiDetails.etBillingRuleValue.selectedItem.toString()))
                 .build()
         }
 
+        // This below parameter only required For UPI OTM Payment
+        if(binding.switchUpiOtmOnOff.isChecked) {
+            siDetails  = PayUSIParams.Builder()
+                .setPreAuthTxn(binding.layoutUpiOtmDetails.switchPreAuthTxn.isChecked)
+                .setPaymentStartDate(binding.layoutUpiOtmDetails.etPaymentStartDateValue.text.toString())
+                .setPaymentEndDate(binding.layoutUpiOtmDetails.etPaymentEndDateValue.text.toString())
+                .build()
+        }
+
+        // This below parameter only required For Split Payment
         var splitPaymentDetails : JSONObject? = null
         if (switchSplitPayment!!.isChecked) {
             val requestMap: HashMap<String, JSONObject> = HashMap()
@@ -324,6 +897,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Prepare TPV beneficiary details list if enabled
+        val tpvBeneficiaryDetailsList = prepareTpvBeneficiaryDetailsList()
+
+        // Prepare Cross-Border address details (always returns valid object)
+        val crossBorderAddressDetails: PayUAddressDetails = prepareCrossBorderAddressDetails()
+
+        // Prepare Enforce Offer Keys list (empty list if disabled)
+        val enforceOfferKeysList: ArrayList<String> = prepareEnforceOfferKeysList()
+
+        // Prepare SKU Details (empty list if disabled)
+        val skuDetails: com.payu.base.models.SkuDetails = prepareSkuDetailsList()
 
         return PayUPaymentParams.Builder().setAmount(binding.etAmount.text.toString())
             .setIsProduction(binding.radioBtnProduction.isChecked)
@@ -335,12 +919,24 @@ class MainActivity : AppCompatActivity() {
             .setEmail(email)
             .setSurl(binding.etSurl.text.toString())
             .setFurl(binding.etFurl.text.toString())
-            .setUserCredential(binding.etUserCredential.text.toString())
+            .setUserCredential(binding.etUserCredential.text.toString()) // Format: <merchantKey>:<userId> Here, the UserId is any ID/email/phone number to uniquely identify the user. **
             .setAdditionalParams(additionalParamsMap)
-            .setPayUSIParams(siDetails)
+            // SI Parameter, used for only SI / Recurring Payment otherwise Optional
+            .setPayUSIParams(if(binding.switchSiOnOff.isChecked || binding.switchUpiOtmOnOff.isChecked) siDetails else null)
+            // Split Parameter, used for only Split Payment otherwise Optional
             .setSplitPaymentDetails(if(switchSplitPayment!!.isChecked) splitPaymentDetails.toString() else null)
-                // pass here unique usertoken for user
-            .setUserToken("anshul123")
+            // Additional Charges: Fixed amount charges for different payment modes otherwise Optional
+            .setAdditionalCharges((if(binding.switchAdditionalCharges.isChecked) binding.etAdditionalChargesValue.text.toString() else null).toString())
+            // Percentage Additional Charges: Percentage-based charges for different payment modes otherwise Optional
+            .setPercentageAdditionalCharges((if(binding.switchPercentageCharges.isChecked) binding.etPercentageChargesValue.text.toString() else null).toString())
+            // TPV Parameter: Set beneficiary details list if enabled, otherwise null
+            .setBeneficiaryDetailsList(tpvBeneficiaryDetailsList)
+            // Cross-Border Parameter: Set address details (empty object if disabled)
+            .setAddressDetails(crossBorderAddressDetails)
+            // Enforce Offer Keys Parameter: Set offer keys list (empty list if disabled)
+            .setEnforcementOfferKeys(enforceOfferKeysList)
+            // SKU Details Parameter: Set SKU details (empty list if disabled)
+            .setSkuDetails(skuDetails)
             .build()
     }
 
@@ -366,7 +962,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onError(errorResponse: ErrorResponse) {
 
                     val errorMessage: String
-                    if (errorResponse != null && errorResponse.errorMessage != null && errorResponse.errorMessage!!.isNotEmpty())
+                    if (errorResponse.errorMessage != null && errorResponse.errorMessage!!.isNotEmpty())
                         errorMessage = errorResponse.errorMessage!!
                     else
                         errorMessage = resources.getString(R.string.some_error_occurred)
@@ -377,11 +973,7 @@ class MainActivity : AppCompatActivity() {
                     map: HashMap<String, String?>,
                     hashGenerationListener: PayUHashGenerationListener
                 ) {
-                    if (map.containsKey(CP_HASH_STRING)
-                        && map.containsKey(CP_HASH_STRING) != null
-                        && map.containsKey(CP_HASH_NAME)
-                        && map.containsKey(CP_HASH_NAME) != null
-                    ) {
+                    if (map.containsKey(CP_HASH_STRING) && map.containsKey(CP_HASH_NAME)) {
 
                         val hashData = map[CP_HASH_STRING]
                         val hashName = map[CP_HASH_NAME]
@@ -391,23 +983,12 @@ class MainActivity : AppCompatActivity() {
                         if (map.containsKey(PayUCheckoutProConstants.CP_POST_SALT))
                             salt = salt.plus(map[PayUCheckoutProConstants.CP_POST_SALT])
 
-                        var hash: String? = null
-
-
-                        //Below hash should be calculated only when integrating Multi-currency support. If not integrating MCP
-                        // then no need to have this if check.
-                        if (hashName.equals(PayUCheckoutProConstants.CP_LOOKUP_API_HASH, ignoreCase = true)){
-
-                            //Calculate HmacSHA1 hash using the hashData and merchant secret key
-                            hash = HashGenerationUtils.generateHashFromSDK(
-                                hashData!!,
-                                salt,
-                                merchantSecretKey
-                            )
-                        }else if (hashType.equals(CP_V2_HASH)){
+                        val hash: String?
+                        //calculate V2 Hash HmacSha256 hash using hashData and salt
+                        if (hashType.equals(CP_V2_HASH)){
                             hash = HashGenerationUtils.generateV2HashFromSDK(hashData!!,binding.etSalt.text.toString())
                         } else {
-                            //calculate SDH-512 hash using hashData and salt
+                            //calculate SHA-512 hash using hashData and salt
                             hash = HashGenerationUtils.generateHashFromSDK(
                                 hashData!!,
                                 salt
@@ -434,7 +1015,7 @@ class MainActivity : AppCompatActivity() {
         checkoutProConfig.autoSelectOtp = binding.switchAutoSelectOtp.isChecked
         checkoutProConfig.autoApprove = binding.switchAutoApprove.isChecked
         checkoutProConfig.surePayCount = binding.etSurePayCount.text.toString().toInt()
-        checkoutProConfig.cartDetails = reviewOrderAdapter?.getOrderDetailsList()
+        checkoutProConfig.cartDetails = reviewOrderAdapter?.getOrderDetailsList() as ArrayList<OrderDetails>?
         checkoutProConfig.showExitConfirmationOnPaymentScreen =
             !binding.switchDiableCBDialog.isChecked
         checkoutProConfig.showExitConfirmationOnCheckoutScreen =
@@ -500,7 +1081,7 @@ class MainActivity : AppCompatActivity() {
                     + ", merchantResponse : > " + response[PayUCheckoutProConstants.CP_MERCHANT_RESPONSE]
         )
 
-        AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
+        AlertDialog.Builder(this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert)
             .setCancelable(false)
             .setMessage(
                 "Payu's Data : " + response.get(PayUCheckoutProConstants.CP_PAYU_RESPONSE) + "\n\n\n Merchant's Data: " + response.get(
@@ -509,29 +1090,29 @@ class MainActivity : AppCompatActivity() {
             )
             .setPositiveButton(
                 android.R.string.ok
-            ) { dialog, cancelButton -> dialog.dismiss() }.show()
+            ) { dialog, _ -> dialog.dismiss() }.show()
     }
 
     private fun getCustomeNoteDetails(): ArrayList<CustomNote>{
         val customNote = ArrayList<CustomNote>()
 
-        if (!(et_custom_note_category_value.selectedItem.toString().equals("NULL") ||et_custom_note_category_value.selectedItem.toString().equals("COMMON")) ) {
+        if (!(findViewById<AppCompatSpinner>(R.id.et_custom_note_category_value).selectedItem.toString().equals("NULL") || findViewById<AppCompatSpinner>(R.id.et_custom_note_category_value).selectedItem.toString().equals("COMMON")) ) {
             val noteCategory = ArrayList<PaymentType>().also {
-                it.add(PaymentType.valueOf(et_custom_note_category_value.selectedItem.toString()))
+                it.add(PaymentType.valueOf(findViewById<AppCompatSpinner>(R.id.et_custom_note_category_value).selectedItem.toString()))
             }
-            customNote.add(CustomNote(et_custom_note_value.text.toString(),noteCategory))
+            customNote.add(CustomNote(findViewById<EditText>(R.id.et_custom_note_value).text.toString(),noteCategory))
 //                .also {
-//                it.custom_note = et_custom_note_value.text.toString()
+//                it.custom_note = binding.customeNote.etCustomNoteValue.text.toString()
 //                it.custom_note_category = ArrayList<PaymentType>().also {
-//                    it.add(PaymentType.valueOf(et_custom_note_category_value.selectedItem.toString()))
+//                    it.add(PaymentType.valueOf(binding.customeNote.etCustomNoteCategoryValue.selectedItem.toString()))
 //                it.add(PaymentType.NB)
 //                it.add(PaymentType.WALLET)
 //                it.add(PaymentType.UPI)
 //                it.add(PaymentType.EMI)
 //                }
 //            })
-        }else if (et_custom_note_category_value.selectedItem.toString().equals("NULL")){
-            customNote.add(CustomNote(et_custom_note_value.text.toString(),null))
+        }else if (findViewById<AppCompatSpinner>(R.id.et_custom_note_category_value).selectedItem.toString().equals("NULL")){
+            customNote.add(CustomNote(findViewById<EditText>(R.id.et_custom_note_value).text.toString(),null))
         }else{
             val noteCategory = ArrayList<PaymentType>().also {
                 it.add(PaymentType.CARD)
@@ -540,10 +1121,23 @@ class MainActivity : AppCompatActivity() {
                 it.add(PaymentType.WALLET)
                 it.add(PaymentType.EMI)
             }
-            customNote.add(CustomNote(et_custom_note_value.text.toString(),noteCategory))
+            customNote.add(CustomNote(findViewById<EditText>(R.id.et_custom_note_value).text.toString(),noteCategory))
         }
 
         return customNote;
     }
 
 }
+
+data class TPVBeneficiaryDetail(
+    val beneficiaryIfsc: String,
+    val beneficiaryAccountNumber: String,
+    val beneficiaryAccountType: String? = null, // Only for ENACH TPV
+    val beneficiaryName: String? = null // Only for ENACH TPV
+)
+
+enum class TPVFlowType {
+    UPI_TPV,
+    ENACH_TPV
+}
+

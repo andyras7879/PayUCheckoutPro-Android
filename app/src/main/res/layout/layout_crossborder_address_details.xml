@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Last Name -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_last_name_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Last Name"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_last_name_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter Last Name"
+            android:text="Rastogi"
+            android:textSize="12sp"
+            android:inputType="textPersonName|textCapWords" />
+    </LinearLayout>
+
+    <!-- Address Line 1 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_address1_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Address Line 1"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_address1_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter Address Line 1"
+            android:text="C-366/A"
+            android:textSize="12sp"
+            android:inputType="textPostalAddress|textMultiLine" />
+    </LinearLayout>
+
+    <!-- Address Line 2 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_address2_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Address Line 2"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_address2_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter Address Line 2"
+            android:text="LIC Gali"
+            android:textSize="12sp"
+            android:inputType="textPostalAddress|textMultiLine" />
+    </LinearLayout>
+
+    <!-- City -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_city_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="City"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_city_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter City"
+            android:text="New Delhi"
+            android:textSize="12sp"
+            android:inputType="textPostalAddress|textCapWords" />
+    </LinearLayout>
+
+    <!-- State -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_state_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="State"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_state_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter State"
+            android:text="New Delhi"
+            android:textSize="12sp"
+            android:inputType="textPostalAddress|textCapWords" />
+    </LinearLayout>
+
+    <!-- Country -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_country_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Country"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_country_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter Country"
+            android:text="India"
+            android:textSize="12sp"
+            android:inputType="textPostalAddress|textCapWords" />
+    </LinearLayout>
+
+    <!-- ZIP Code -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_zipcode_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="ZIP Code"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_zipcode_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter ZIP Code"
+            android:text="110096"
+            android:textSize="12sp"
+            android:inputType="textPostalAddress|number" />
+    </LinearLayout>
+
+</LinearLayout>

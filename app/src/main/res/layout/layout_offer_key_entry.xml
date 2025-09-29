@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginBottom="@dimen/dimen_5dp"
+    android:background="@color/light_white"
+    android:padding="@dimen/dimen_5dp"
+    android:gravity="center_vertical">
+
+    <!-- Offer Key Input Field -->
+    <EditText
+        android:id="@+id/et_offer_key_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Enter Offer Key (e.g., OFFER123)"
+        android:textSize="12sp"
+        android:inputType="text|textCapCharacters"
+        android:maxLines="1" />
+
+    <!-- Delete Button -->
+    <ImageView
+        android:id="@+id/iv_delete_offer_key"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginLeft="@dimen/dimen_5dp"
+        android:src="@drawable/ic_delete"
+        android:padding="@dimen/dimen_5dp"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
+</LinearLayout>

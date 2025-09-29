@@ -308,6 +308,141 @@
                                     android:textColor="@color/payumoney_black"
                                     android:textSize="16sp" />
                             </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Additional Charges Section -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dimen_10dp"
+                                android:orientation="vertical">
+
+                                <!-- Additional Charges Header with Switch -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="Additional Charges"
+                                        android:textColor="@color/payumoney_black"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                    <androidx.appcompat.widget.SwitchCompat
+                                        android:id="@+id/switch_additional_charges"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content" />
+                                </LinearLayout>
+
+                                <!-- Additional Charges Input Fields -->
+                                <LinearLayout
+                                    android:id="@+id/layout_additional_charges_inputs"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/dimen_10dp"
+                                    android:orientation="vertical"
+                                    android:visibility="gone">
+
+                                    <!-- Fixed Additional Charges -->
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal">
+
+                                        <EditText
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="2"
+                                            android:enabled="false"
+                                            android:focusable="false"
+                                            android:text="Additional Charges"
+                                            android:textColor="@android:color/holo_blue_light"
+                                            android:textSize="14sp" />
+
+                                        <EditText
+                                            android:id="@+id/et_additional_charges_value"
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="3"
+                                            android:hint="CC:12,AMEX:19,SBIB:98,DINR:2,DC:25,NB:55"
+                                            android:text="CC:12,AMEX:19,SBIB:98,DINR:2,DC:25,NB:55"
+                                            android:textSize="12sp" />
+                                    </LinearLayout>
+
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Percentage Charges Section -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dimen_10dp"
+                                android:orientation="vertical">
+
+                                <!-- Percentage Charges Header with Switch -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="Percentage Charges"
+                                        android:textColor="@color/payumoney_black"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                    <androidx.appcompat.widget.SwitchCompat
+                                        android:id="@+id/switch_percentage_charges"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content" />
+                                </LinearLayout>
+
+                                <!-- Percenage Charges Input Fields -->
+                                <LinearLayout
+                                    android:id="@+id/layout_percentage_charges_inputs"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/dimen_10dp"
+                                    android:orientation="vertical"
+                                    android:visibility="gone">
+
+                                    <!-- Perrcentage-Based Charges -->
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal">
+
+                                        <EditText
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="2"
+                                            android:enabled="false"
+                                            android:focusable="false"
+                                            android:text="Percentage Charges"
+                                            android:textColor="@android:color/holo_blue_light"
+                                            android:textSize="14sp" />
+
+                                        <EditText
+                                            android:id="@+id/et_percentage_charges_value"
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="3"
+                                            android:hint="CC:50,AMEX:100,DINR:75,DC:25"
+                                            android:text="CC:50,AMEX:100,DINR:75,DC:25"
+                                            android:textSize="12sp" />
+                                    </LinearLayout>
+
+                                </LinearLayout>
+                            </LinearLayout>
+
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
@@ -666,6 +801,66 @@
 
                     </androidx.cardview.widget.CardView>
 
+                    <!-- UPI OTM (One Time Mandate) Section -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_10dp"
+                        android:layout_marginTop="@dimen/dimen_10dp"
+                        android:layout_marginRight="@dimen/dimen_10dp"
+                        android:padding="@dimen/dimen_10dp"
+                        app:cardBackgroundColor="@color/light_white"
+                        app:cardCornerRadius="@dimen/dimen_3dp"
+                        app:cardElevation="@dimen/dimen_5dp"
+                        app:cardPreventCornerOverlap="false"
+                        app:contentPaddingBottom="@dimen/dimen_10dp"
+                        app:contentPaddingLeft="@dimen/dimen_5dp"
+                        app:contentPaddingRight="@dimen/dimen_5dp"
+                        app:contentPaddingTop="@dimen/dimen_10dp"
+                        card_view:cardElevation="@dimen/dimen_5dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <RelativeLayout
+                                android:id="@+id/rl_upi_otm_header"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/tv_upi_otm"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_centerVertical="true"
+                                    android:text="UPI OTM (One Time Mandate)"
+                                    android:textColor="#000000"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <androidx.appcompat.widget.SwitchCompat
+                                    android:id="@+id/switch_upi_otm_on_off"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginLeft="@dimen/dimen_10dp" />
+
+                            </RelativeLayout>
+
+                            <include
+                                android:id="@+id/layout_upi_otm_details"
+                                layout="@layout/layout_upi_otm_details"
+                                android:layout_width="match_parent"
+                                android:visibility="gone"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/rl_upi_otm_header"
+                                android:layout_marginTop="@dimen/dimen_20dp" />
+                        </RelativeLayout>
+
+                    </androidx.cardview.widget.CardView>
+
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -753,6 +948,347 @@
 
                         </RelativeLayout>
 
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- TPV (Third Party Verification) Section -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_10dp"
+                        android:layout_marginTop="@dimen/dimen_10dp"
+                        android:layout_marginRight="@dimen/dimen_10dp"
+                        android:padding="@dimen/dimen_10dp"
+                        app:cardBackgroundColor="@color/light_white"
+                        app:cardCornerRadius="@dimen/dimen_3dp"
+                        app:cardElevation="@dimen/dimen_5dp"
+                        app:cardPreventCornerOverlap="false"
+                        app:contentPaddingBottom="@dimen/dimen_10dp"
+                        app:contentPaddingLeft="@dimen/dimen_5dp"
+                        app:contentPaddingRight="@dimen/dimen_5dp"
+                        app:contentPaddingTop="@dimen/dimen_10dp"
+                        card_view:cardElevation="@dimen/dimen_5dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <RelativeLayout
+                                android:id="@+id/rl_tpv_header"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/tv_tpv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_centerVertical="true"
+                                    android:text="TPV (Third Party Verification)"
+                                    android:textColor="#000000"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <androidx.appcompat.widget.SwitchCompat
+                                    android:id="@+id/switch_tpv_on_off"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginLeft="@dimen/dimen_10dp" />
+
+                            </RelativeLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_tpv_content"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
+                                android:layout_below="@+id/rl_tpv_header"
+                                android:layout_marginTop="@dimen/dimen_15dp"
+                                android:orientation="vertical">
+
+                                <!-- TPV Flow Type Selection -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="TPV Flow Type:"
+                                        android:textColor="@color/payumoney_black"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold" />
+
+                                    <RadioGroup
+                                        android:id="@+id/rg_tpv_flow_type"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="@dimen/dimen_10dp"
+                                        android:orientation="horizontal">
+
+                                        <RadioButton
+                                            android:id="@+id/rb_upi_si_tpv"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="UPI TPV"
+                                            android:checked="true"
+                                            android:textSize="14sp" />
+
+                                        <RadioButton
+                                            android:id="@+id/rb_enach_si_tpv"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginLeft="@dimen/dimen_15dp"
+                                            android:text="ENACH TPV"
+                                            android:textSize="14sp" />
+                                    </RadioGroup>
+                                </LinearLayout>
+
+                                <!-- Beneficiary Details Container -->
+                                <LinearLayout
+                                    android:id="@+id/ll_tpv_beneficiaries"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/dimen_15dp"
+                                    android:orientation="vertical" />
+
+                                <!-- Add More Beneficiary Button -->
+                                <Button
+                                    android:id="@+id/btn_add_beneficiary"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_marginTop="@dimen/dimen_10dp"
+                                    android:background="@drawable/bg_rounded_button"
+                                    android:text="Add More Beneficiary"
+                                    android:textColor="@color/light_white" />
+                            </LinearLayout>
+
+                        </RelativeLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Cross-Border Payment Section -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_10dp"
+                        android:layout_marginTop="@dimen/dimen_10dp"
+                        android:layout_marginRight="@dimen/dimen_10dp"
+                        android:padding="@dimen/dimen_10dp"
+                        app:cardBackgroundColor="@color/light_white"
+                        app:cardCornerRadius="@dimen/dimen_3dp"
+                        app:cardElevation="@dimen/dimen_5dp"
+                        app:cardPreventCornerOverlap="false"
+                        app:contentPaddingBottom="@dimen/dimen_10dp"
+                        app:contentPaddingLeft="@dimen/dimen_5dp"
+                        app:contentPaddingRight="@dimen/dimen_5dp"
+                        app:contentPaddingTop="@dimen/dimen_10dp"
+                        card_view:cardElevation="@dimen/dimen_5dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <RelativeLayout
+                                android:id="@+id/rl_crossborder_header"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/tv_crossborder"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_centerVertical="true"
+                                    android:text="Cross-Border Payment"
+                                    android:textColor="#000000"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <androidx.appcompat.widget.SwitchCompat
+                                    android:id="@+id/switch_crossborder_on_off"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginLeft="@dimen/dimen_10dp" />
+
+                            </RelativeLayout>
+
+                            <include
+                                android:id="@+id/layout_crossborder_address_details"
+                                layout="@layout/layout_crossborder_address_details"
+                                android:layout_width="match_parent"
+                                android:visibility="gone"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/rl_crossborder_header"
+                                android:layout_marginTop="@dimen/dimen_20dp" />
+                        </RelativeLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Enforce Offer Key Section -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_10dp"
+                        android:layout_marginTop="@dimen/dimen_10dp"
+                        android:layout_marginRight="@dimen/dimen_10dp"
+                        android:padding="@dimen/dimen_10dp"
+                        app:cardBackgroundColor="@color/light_white"
+                        app:cardCornerRadius="@dimen/dimen_3dp"
+                        app:cardElevation="@dimen/dimen_5dp"
+                        app:cardPreventCornerOverlap="false"
+                        app:contentPaddingBottom="@dimen/dimen_10dp"
+                        app:contentPaddingLeft="@dimen/dimen_5dp"
+                        app:contentPaddingRight="@dimen/dimen_5dp"
+                        app:contentPaddingTop="@dimen/dimen_10dp"
+                        card_view:cardElevation="@dimen/dimen_5dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <RelativeLayout
+                                android:id="@+id/rl_enforce_offer_header"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/tv_enforce_offer"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_centerVertical="true"
+                                    android:text="Enforce Offer Key"
+                                    android:textColor="#000000"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <androidx.appcompat.widget.SwitchCompat
+                                    android:id="@+id/switch_enforce_offer_on_off"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginLeft="@dimen/dimen_10dp" />
+
+                            </RelativeLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_enforce_offer_content"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
+                                android:layout_below="@+id/rl_enforce_offer_header"
+                                android:layout_marginTop="@dimen/dimen_15dp"
+                                android:orientation="vertical">
+
+                                <!-- Offer Keys Container -->
+                                <LinearLayout
+                                    android:id="@+id/ll_offer_keys"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical" />
+
+                                <!-- Add More Offer Key Button -->
+                                <Button
+                                    android:id="@+id/btn_add_offer_key"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_marginTop="@dimen/dimen_10dp"
+                                    android:background="@drawable/bg_rounded_button"
+                                    android:text="Add More Offer Key"
+                                    android:textColor="@color/light_white" />
+                            </LinearLayout>
+
+                        </RelativeLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- SKU Details Section -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dimen_10dp"
+                        android:layout_marginTop="@dimen/dimen_10dp"
+                        android:layout_marginRight="@dimen/dimen_10dp"
+                        android:padding="@dimen/dimen_10dp"
+                        app:cardBackgroundColor="@color/light_white"
+                        app:cardCornerRadius="@dimen/dimen_3dp"
+                        app:cardElevation="@dimen/dimen_5dp"
+                        app:cardPreventCornerOverlap="false"
+                        app:contentPaddingBottom="@dimen/dimen_10dp"
+                        app:contentPaddingLeft="@dimen/dimen_5dp"
+                        app:contentPaddingRight="@dimen/dimen_5dp"
+                        app:contentPaddingTop="@dimen/dimen_10dp"
+                        card_view:cardElevation="@dimen/dimen_5dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <RelativeLayout
+                                android:id="@+id/rl_sku_details_header"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:id="@+id/tv_sku_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_centerVertical="true"
+                                    android:text="SKU Details"
+                                    android:textColor="#000000"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <androidx.appcompat.widget.SwitchCompat
+                                    android:id="@+id/switch_sku_details_on_off"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginLeft="@dimen/dimen_10dp" />
+
+                            </RelativeLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_sku_details_content"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
+                                android:layout_below="@+id/rl_sku_details_header"
+                                android:layout_marginTop="@dimen/dimen_15dp"
+                                android:orientation="vertical">
+
+                                <!-- SKU Items Container -->
+                                <LinearLayout
+                                    android:id="@+id/ll_sku_items"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical" />
+
+                                <!-- Add More SKU Button -->
+                                <Button
+                                    android:id="@+id/btn_add_sku_item"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_marginTop="@dimen/dimen_10dp"
+                                    android:background="@drawable/bg_rounded_button"
+                                    android:text="Add More SKU Item"
+                                    android:textColor="@color/light_white" />
+                            </LinearLayout>
+
+                        </RelativeLayout>
 
                     </androidx.cardview.widget.CardView>
 

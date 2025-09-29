@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="@dimen/dimen_10dp"
+    android:background="@color/light_white"
+    android:padding="@dimen/dimen_10dp">
+
+    <!-- Beneficiary Header with Delete Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Beneficiary Details"
+            android:textColor="@color/payumoney_black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/iv_delete_beneficiary"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_delete"
+            android:padding="@dimen/dimen_5dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+
+    <!-- IFSC Code (Common for both flows) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_10dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="IFSC Code"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_beneficiary_ifsc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter IFSC Code"
+            android:text="HDFC0000090"
+            android:textSize="12sp"
+            android:inputType="textCapCharacters" />
+    </LinearLayout>
+
+    <!-- Account Number (Common for both flows) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Account Number"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_beneficiary_account_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter Account Number"
+            android:text="002001600674"
+            android:textSize="12sp"
+            android:inputType="number" />
+    </LinearLayout>
+
+    <!-- Account Type (Only for ENACH SI TPV) -->
+    <LinearLayout
+        android:id="@+id/ll_account_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Account Type"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <Spinner
+            android:id="@+id/spinner_account_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Beneficiary Name (Only for ENACH SI TPV) -->
+    <LinearLayout
+        android:id="@+id/ll_beneficiary_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_5dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:enabled="false"
+            android:focusable="false"
+            android:text="Beneficiary Name"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_beneficiary_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Enter Beneficiary Name"
+            android:text="ANAND KUMAR RASTOGI"
+            android:textSize="12sp"
+            android:inputType="textPersonName|textCapWords" />
+    </LinearLayout>
+
+</LinearLayout>
