@@ -8,9 +8,15 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.WindowInsetsController
 import android.webkit.WebView
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.CompoundButton
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RadioGroup
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.SwitchCompat
@@ -20,7 +26,22 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import com.payu.base.models.*
+import com.payu.base.models.BaseApiLayerConstants
+import com.payu.base.models.CardScheme
+import com.payu.base.models.CardType
+import com.payu.base.models.CustomNote
+import com.payu.base.models.ErrorResponse
+import com.payu.base.models.OrderDetails
+import com.payu.base.models.PayUAddressDetails
+import com.payu.base.models.PayUBeneficiaryAccountType
+import com.payu.base.models.PayUBeneficiaryDetail
+import com.payu.base.models.PayUBillingCycle
+import com.payu.base.models.PayUPaymentParams
+import com.payu.base.models.PayUSIParams
+import com.payu.base.models.PaymentMode
+import com.payu.base.models.PaymentType
+import com.payu.base.models.PayuBillingLimit
+import com.payu.base.models.PayuBillingRule
 import com.payu.checkoutpro.PayUCheckoutPro
 import com.payu.checkoutpro.models.PayUCheckoutProConfig
 import com.payu.checkoutpro.utils.PayUCheckoutProConstants
@@ -48,10 +69,9 @@ class MainActivity : AppCompatActivity() {
     private val testKey = "<Please_add_key_here>"
     private val testSalt = "<Please_add_salt_here>"
 
-    //Prod Key and Salt
+    //Prod Key and Sal
     private val prodKey = "<Please_add_key_here>"
     private val prodSalt = "<Please_add_salt_here>"
-
     private lateinit var binding: ActivityMainBinding
 
     // variable to track event time
