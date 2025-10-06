@@ -999,21 +999,24 @@ class MainActivity : AppCompatActivity() {
                         val hashName = map[CP_HASH_NAME]
                         val hashType = map[CP_HASH_TYPE]
 
-                        var salt = binding.etSalt.text.toString()
+                        var postSalt = ""
+
                         if (map.containsKey(PayUCheckoutProConstants.CP_POST_SALT))
-                            salt = salt.plus(map[PayUCheckoutProConstants.CP_POST_SALT])
+                            postSalt = postSalt.plus(map[PayUCheckoutProConstants.CP_POST_SALT])
 
                         val hash: String?
-                        //calculate V2 Hash HmacSha256 hash using hashData and salt
-                        if (hashType.equals(CP_V2_HASH)){
-                            hash = HashGenerationUtils.generateV2HashFromSDK(hashData!!,binding.etSalt.text.toString())
-                        } else {
-                            //calculate SHA-512 hash using hashData and salt
-                            hash = HashGenerationUtils.generateHashFromSDK(
-                                hashData!!,
-                                salt
-                            )
-                        }
+
+                        // Backend will generate the hash which you need to pass to SDK
+                        // hash: is the response which you get from your server
+                        // use SHA512 Algorithm for generating the Hash
+                        //Keep the salt and hash calculation logic in the backend for security reasons. Don't use local hash logic.
+
+                        //Uncomment following line to test the test hash.
+                        val salt = binding.etSalt.text.toString() + postSalt
+                        hash = HashGenerationUtils.generateHashFromSDK(
+                            hashData!!,
+                            salt
+                        )
 
                         if (!TextUtils.isEmpty(hash)) {
                             val hashMap: HashMap<String, String?> = HashMap()
