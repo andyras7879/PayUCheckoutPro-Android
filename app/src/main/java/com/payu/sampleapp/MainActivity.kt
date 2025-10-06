@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     private val testKey = "<Please_add_key_here>"
     private val testSalt = "<Please_add_salt_here>"
 
-    //Prod Key and Sal
+    //Prod Key and Salt
     private val prodKey = "<Please_add_key_here>"
     private val prodSalt = "<Please_add_salt_here>"
     private lateinit var binding: ActivityMainBinding
